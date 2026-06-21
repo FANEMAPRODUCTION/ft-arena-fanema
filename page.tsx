@@ -1,9 +1,18 @@
+// @ts-nocheck
 import React, { useState } from 'react';
 import { 
   Home, User, Users, Swords, ShieldCheck, Plus, Mail, Trash2, ChevronRight, ChevronLeft, LogIn, Settings, Layers, ScrollText, AlertTriangle, Vote, Key, CheckCircle
 } from 'lucide-react';
 
-// --- INITIAL AUTO-GENERATED ROOMS ---
+// Tailwind Global Injector untuk web tanpa postcss manual
+const TailwindStyle = () => (
+  <style dangerouslySetInnerHTML={{__html: `
+    @import url('https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css');
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  `}} />
+);
+
 const generateInitialRooms = () => {
   const modes = ['1v1', '2v2', '3v3', '4v4'];
   const roomsList = [];
@@ -31,52 +40,33 @@ const generateInitialRooms = () => {
 };
 
 export default function FTArenaApp() {
-  // Navigation States
   const [view, setView] = useState('login'); 
   const [activeTab, setActiveTab] = useState('Semua'); 
-  const [selectedRoom, setSelectedRoom] = useState<any>(null);
+  const [selectedRoom, setSelectedRoom] = useState(null);
   const [showRules, setShowRules] = useState(false); 
   
-  // Dynamic Application States
-  const [rooms, setRooms] = useState<any[]>(generateInitialRooms());
-  const [user, setUser] = useState<{ name: string; email: string } | null>(null);
+  const [rooms, setRooms] = useState(generateInitialRooms());
+  const [user, setUser] = useState(null);
   const [admins, setAdmins] = useState(['fakhri@arena.com', 'fanemaproduction@gmail.com']);
   const [newAdminEmail, setNewAdminEmail] = useState('');
 
-  // Form State untuk Tambah Room Baru oleh Admin
   const [newRoomType, setNewRoomType] = useState('1v1');
   const [newRoomNominal, setNewRoomNominal] = useState('1'); 
   const [newRoomAdmin, setNewRoomAdmin] = useState('Fakhri');
 
-  // --- STATES: SISTEM VOTE POT & ID CUSTOM ROOM ---
   const [pot1Data, setPot1Data] = useState({
-    pihak1: 'TEAM ARYA',
-    pihak2: 'TEAM SANZ',
-    votedCreator: '', 
-    roomID: '',
-    roomPW: ''
+    pihak1: 'TEAM ARYA', pihak2: 'TEAM SANZ', votedCreator: '', roomID: '', roomPW: ''
   });
-
   const [pot2Data, setPot2Data] = useState({
-    pihak1: 'TEAM FAKHRI JR',
-    pihak2: 'TEAM INDO PRIDE',
-    votedCreator: '',
-    roomID: '',
-    roomPW: ''
+    pihak1: 'TEAM FAKHRI JR', pihak2: 'TEAM INDO PRIDE', votedCreator: '', roomID: '', roomPW: ''
   });
 
-  // Simulasi user masuk di Pot 1 sebagai Pihak 1
   const userCurrentPot = 1; 
   const userCurrentPihak = 'pihak1';
-
   const isAdminAuthorized = user?.email === 'fanemaproduction@gmail.com';
 
   const handleGoogleLogin = () => {
-    const mockGoogleUser = {
-      name: 'Fanema Production', 
-      email: 'fanemaproduction@gmail.com' 
-    };
-    setUser(mockGoogleUser);
+    setUser({ name: 'Fanema Production', email: 'fanemaproduction@gmail.com' });
     setView('user-dashboard');
   };
 
@@ -88,7 +78,7 @@ export default function FTArenaApp() {
     }
   };
 
-  const handleCreateRoom = (e: React.FormEvent) => {
+  const handleCreateRoom = (e) => {
     e.preventDefault();
     const nominalInt = parseInt(newRoomNominal);
     const priceNum = nominalInt * 1000;
@@ -110,7 +100,7 @@ export default function FTArenaApp() {
     alert(`Room ${newRoom.title} berhasil dibuat!`);
   };
 
-  const handleDeleteRoom = (id: number) => {
+  const handleDeleteRoom = (id) => {
     if(confirm("Apakah Anda yakin ingin menghapus room ini?")) {
       setRooms(rooms.filter(room => room.id !== id));
     }
@@ -125,352 +115,139 @@ export default function FTArenaApp() {
                     `• *Room*: ${selectedRoom.title}\n` +
                     `• *Total Bayar*: Rp ${(selectedRoom.priceNum + selectedRoom.feeNum).toLocaleString('id-ID')}\n\n` +
                     `Saya sudah membaca seluruh RULES FT CS FANEMA dan siap bermain.`;
-    
     window.open(`https://wa.me/${adminPhoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
   };
 
   const filteredRooms = activeTab === 'Semua' ? rooms : rooms.filter(room => room.type === activeTab);
 
-  // ==================== UI: LOGIN SCREEN ====================
-  if (view === 'login') {
-    return (
-      <div className="min-h-screen bg-[#030712] flex justify-center items-center p-4">
-        <div className="w-full max-w-md bg-[#090d16] border border-slate-800 rounded-3xl p-8 flex flex-col items-center text-center shadow-2xl">
-          <div className="w-16 h-16 bg-[#0e1726] border border-cyan-500/30 rounded-2xl flex items-center justify-center text-cyan-400 mb-4 shadow-lg shadow-cyan-500/10">
-            <Swords size={32} />
-          </div>
+  return (
+    <div className="min-h-screen bg-gray-950 flex justify-center items-center p-4 relative font-sans text-gray-200">
+      <TailwindStyle />
+      
+      {view === 'login' && (
+        <div className="w-full max-w-md bg-gray-900 border border-gray-800 rounded-3xl p-8 flex flex-col items-center text-center shadow-2xl">
+          <div className="w-16 h-16 bg-gray-800 border border-cyan-500/30 rounded-2xl flex items-center justify-center text-cyan-400 mb-4 shadow-lg"><Swords size={32} /></div>
           <h1 className="text-2xl font-black text-white tracking-tight mb-1">FT ARENA</h1>
-          <p className="text-xs text-slate-400 mb-8">Masuk dengan Google OAuth untuk mengelola & mendaftar</p>
-          <button 
-            onClick={handleGoogleLogin}
-            className="w-full bg-white hover:bg-slate-100 text-slate-900 font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-3 transition-all text-sm shadow-md"
-          >
-            <svg className="w-5 h-5" viewBox="0 0 24 24">
-              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22-.03-.63z" />
-              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-            </svg>
-            Masuk dengan Google
-          </button>
+          <p className="text-xs text-gray-400 mb-6">Masuk dengan Google OAuth</p>
+          <button onClick={handleGoogleLogin} className="w-full bg-white hover:bg-gray-100 text-gray-950 font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-3 text-sm shadow-md transition-all">Masuk dengan Google</button>
         </div>
-      </div>
-    );
-  }
+      )}
 
-  // ==================== UI: USER DASHBOARD ====================
-  const UserDashboard = () => (
-    <div className="w-full max-w-md bg-[#090d16] border border-slate-800 rounded-3xl p-6 flex flex-col min-h-[750px] relative shadow-2xl">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <p className="text-xs text-slate-400">Selamat datang,</p>
-          <h1 className="text-xl font-bold text-white uppercase tracking-tight truncate max-w-[200px]">{user?.name}</h1>
-        </div>
-        <div className="flex items-center gap-1.5 bg-[#0e1726] border border-cyan-500/30 rounded-full px-3 py-1.5 text-xs font-semibold text-cyan-400">
-          <Swords size={14} /> FT ARENA
-        </div>
-      </div>
-
-      {/* Filter Tabs */}
-      <div className="flex gap-1.5 mb-5 text-[11px] overflow-x-auto pb-2 no-scrollbar">
-        {['Semua', '1v1', '2v2', '3v3', '4v4'].map((tab) => (
-          <button 
-            key={tab} 
-            onClick={() => setActiveTab(tab)}
-            className={`px-4 py-1.5 rounded-full border transition-all ${
-              activeTab === tab ? 'bg-cyan-500 border-cyan-500 text-black font-bold' : 'bg-[#0e1726] border-slate-800 text-slate-400'
-            }`}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
-
-      {/* Room List */}
-      <div className="space-y-2.5 flex-grow overflow-y-auto max-h-[460px] pr-1 no-scrollbar">
-        {filteredRooms.map((room) => (
-          <div 
-            key={room.id} 
-            onClick={() => { setSelectedRoom(room); setView('room-detail'); }}
-            className="bg-[#0e1726]/40 border border-slate-800/80 hover:border-cyan-500/30 rounded-2xl p-4 relative group cursor-pointer"
-          >
-            <div className="flex justify-between items-start mb-1.5">
-              <div className="flex items-center gap-2">
-                <span className="bg-cyan-950 text-cyan-400 text-[10px] font-bold px-2 py-0.5 rounded border border-cyan-900/60">{room.type}</span>
-                <span className="bg-amber-950/40 text-amber-400 border border-amber-900/40 text-[10px] px-2 py-0.5 rounded flex items-center gap-1">
-                  <span className="w-1 h-1 rounded-full bg-amber-400 animate-pulse"></span> Pot Penuh
-                </span>
+      {view === 'user-dashboard' && (
+        <div className="w-full max-w-md bg-gray-900 border border-gray-800 rounded-3xl p-6 flex flex-col min-h-[720px] shadow-2xl">
+          <div className="flex justify-between items-center mb-5">
+            <div><p className="text-xs text-gray-400">Selamat datang,</p><h1 className="text-lg font-bold text-white uppercase max-w-[200px] truncate">{user?.name}</h1></div>
+            <div className="flex items-center gap-1.5 bg-gray-800 border border-cyan-500/30 rounded-full px-3 py-1 text-xs font-semibold text-cyan-400"><Swords size={14} /> FT ARENA</div>
+          </div>
+          <div className="flex gap-1 mb-4 overflow-x-auto pb-2 no-scrollbar text-xs">
+            {['Semua', '1v1', '2v2', '3v3', '4v4'].map(tab => (
+              <button key={tab} onClick={() => setActiveTab(tab)} className={`px-4 py-1.5 rounded-full border ${activeTab === tab ? 'bg-cyan-500 border-cyan-500 text-black font-bold' : 'bg-gray-800 border-gray-700 text-gray-400'}`}>{tab}</button>
+            ))}
+          </div>
+          <div className="space-y-2.5 flex-grow overflow-y-auto max-h-[440px] pr-1 no-scrollbar">
+            {filteredRooms.map(room => (
+              <div key={room.id} onClick={() => { setSelectedRoom(room); setView('room-detail'); }} className="bg-gray-800/50 border border-gray-800 hover:border-cyan-500/30 rounded-2xl p-4 transition-all cursor-pointer group">
+                <div className="flex justify-between items-start mb-1"><div className="flex items-center gap-1.5"><span className="bg-cyan-950 text-cyan-400 text-[10px] font-bold px-2 py-0.5 rounded">{room.type}</span><span className="bg-amber-950/50 text-amber-400 text-[10px] px-2 py-0.5 rounded">Pot Penuh</span></div><ChevronRight size={14} className="text-gray-500 group-hover:text-cyan-400" /></div>
+                <h3 className="font-bold text-white text-base">{room.title}</h3>
+                <p className="text-xs text-gray-400 mb-2">oleh {room.admin}</p>
+                <div className="flex justify-between items-center text-xs border-t border-gray-800/60 pt-2"><p className="text-cyan-400 font-medium">{room.price} <span className="text-gray-500 text-[10px]">+ fee {room.fee}</span></p><p className="text-amber-400">{room.slots}</p></div>
               </div>
-              <ChevronRight size={15} className="text-slate-500 group-hover:text-cyan-400" />
-            </div>
-            <h3 className="font-bold text-white text-base tracking-wide">{room.title}</h3>
-            <p className="text-[11px] text-slate-400 mb-2.5">oleh {room.admin}</p>
-            <div className="flex justify-between items-center text-xs border-t border-slate-800/50 pt-2">
-              <p className="text-cyan-400 font-medium">{room.price} <span className="text-slate-500 text-[10px]"> + fee {room.fee}</span></p>
-              <p className="text-amber-400 flex items-center gap-1">{room.slots}</p>
-            </div>
+            ))}
           </div>
-        ))}
-      </div>
+          <div className="flex justify-around items-center border-t border-gray-800 pt-3 mt-3">
+            <button onClick={() => setView('user-dashboard')} className="text-cyan-400 text-xs flex flex-col items-center"><Home size={18} /><span>Rooms</span></button>
+            {isAdminAuthorized && <button onClick={() => setView('admin-dashboard')} className="text-gray-500 hover:text-amber-500 text-xs flex flex-col items-center"><ShieldCheck size={18} /><span>Admin</span></button>}
+          </div>
+        </div>
+      )}
 
-      {/* Navigation */}
-      <div className="flex justify-around items-center border-t border-slate-800 pt-3 mt-4 bg-[#090d16]">
-        <button onClick={() => setView('user-dashboard')} className="flex flex-col items-center gap-1 text-[10px] text-cyan-400">
-          <Home size={18} /> <span>Rooms</span>
-        </button>
-        {isAdminAuthorized && (
-          <button onClick={() => setView('admin-dashboard')} className="flex flex-col items-center gap-1 text-[10px] text-slate-500 hover:text-amber-500">
-            <ShieldCheck size={18} /> <span>Admin Panel</span>
-          </button>
-        )}
-      </div>
-    </div>
-  );
-
-  // ==================== UI: DETAIL ROOM SCREEN ====================
-  const RoomDetail = () => {
-    const currentPotData = userCurrentPot === 1 ? pot1Data : pot2Data;
-    const updatePotData = userCurrentPot === 1 ? setPot1Data : setPot2Data;
-    const isUserTheCreator = currentPotData.votedCreator === userCurrentPihak;
-
-    return (
-      <div className="w-full max-w-md bg-[#090d16] border border-slate-800 rounded-3xl p-6 flex flex-col min-h-[750px] justify-between shadow-2xl overflow-y-auto max-h-[800px] no-scrollbar">
-        <div>
-          <div className="flex items-center gap-3 mb-5">
-            <button onClick={() => setView('user-dashboard')} className="bg-[#0e1726] border border-slate-800 p-2 rounded-xl text-slate-400">
-              <ChevronLeft size={16} />
-            </button>
-            <div>
-              <h2 className="font-bold text-white text-base">{selectedRoom?.title} — POT {userCurrentPot}</h2>
-              <p className="text-[11px] text-slate-400">Penanggung Jawab: Admin {selectedRoom?.admin}</p>
+      {view === 'room-detail' && (
+        <div className="w-full max-w-md bg-gray-900 border border-gray-800 rounded-3xl p-6 flex flex-col min-h-[720px] justify-between shadow-2xl">
+          <div>
+            <div className="flex items-center gap-3 mb-4">
+              <button onClick={() => setView('user-dashboard')} className="bg-gray-800 border border-gray-700 p-2 rounded-xl text-gray-400"><ChevronLeft size={16} /></button>
+              <div><h2 className="font-bold text-white text-base">{selectedRoom?.title} — POT 1</h2><p className="text-xs text-gray-400">PJ: Admin {selectedRoom?.admin}</p></div>
             </div>
-          </div>
-
-          <div className="bg-amber-950/20 border border-amber-500/20 rounded-xl p-3 mb-4 flex items-center gap-2.5 text-xs text-amber-400">
-            <AlertTriangle size={16} className="shrink-0" />
-            <span>Mengingat slot penuh ({selectedRoom?.slots}), pendaftaran memerlukan persetujuan rules regulasi.</span>
-          </div>
-
-          {/* SYSTEM VOTE PEMBUAT ROOM */}
-          <div className="bg-[#0e1726]/60 border border-slate-800 rounded-2xl p-4 mb-4">
-            <h4 className="text-white text-xs font-bold mb-2.5 flex items-center gap-2 text-cyan-400">
-              <Vote size={14} /> Vote Penanggung Jawab Open Room (1 Saja per Pot)
-            </h4>
-            {currentPotData.votedCreator ? (
-              <div className="bg-emerald-950/30 border border-emerald-500/20 rounded-xl p-3 flex items-center gap-2 text-xs text-emerald-400">
-                <CheckCircle size={14} />
-                <span>Terpilih: <b>{currentPotData.votedCreator === 'pihak1' ? currentPotData.pihak1 : currentPotData.pihak2}</b> wajib mengisi info room!</span>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-2">
-                <button onClick={() => updatePotData({...currentPotData, votedCreator: 'pihak1'})} className="bg-[#090d16] border border-slate-800 p-3 rounded-xl text-left text-xs">
-                  <p className="text-slate-500 text-[10px]">Pihak 1</p>
-                  <p className="text-white font-bold truncate">{currentPotData.pihak1}</p>
-                </button>
-                <button onClick={() => updatePotData({...currentPotData, votedCreator: 'pihak2'})} className="bg-[#090d16] border border-slate-800 p-3 rounded-xl text-left text-xs">
-                  <p className="text-slate-500 text-[10px]">Pihak 2</p>
-                  <p className="text-white font-bold truncate">{currentPotData.pihak2}</p>
-                </button>
+            <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 mb-4 flex items-center gap-2 text-xs text-amber-400"><AlertTriangle size={14} className="shrink-0" /><span>Slot penuh, pendaftaran memerlukan persetujuan rules.</span></div>
+            <div className="bg-gray-800/40 border border-gray-800 rounded-2xl p-4 mb-4 text-center grid grid-cols-3 text-xs">
+              <div><p className="font-bold text-white">{selectedRoom?.price}</p><p className="text-[10px] text-gray-500">Taruhan</p></div>
+              <div className="border-x border-gray-800"><p className="font-bold text-white">{selectedRoom?.fee}</p><p className="text-[10px] text-gray-500">Fee Admin</p></div>
+              <div><p className="font-bold text-cyan-400">Rp {(selectedRoom?.priceNum + selectedRoom?.feeNum).toLocaleString('id-ID')}</p><p className="text-[10px] text-gray-500">Total</p></div>
+            </div>
+            <div className="bg-gray-800/60 border border-gray-800 rounded-2xl p-4 mb-4">
+              <h4 className="text-white text-xs font-bold mb-2 flex items-center gap-1.5 text-cyan-400"><Vote size={14}/>Vote Penanggung Jawab Open Room</h4>
+              {pot1Data.votedCreator ? <div className="text-xs text-emerald-400 bg-emerald-950/20 p-2.5 border border-emerald-900 rounded-xl">Terpilih: <b>{pot1Data.votedCreator === 'pihak1' ? pot1Data.pihak1 : pot1Data.pihak2}</b> wajib mengisi data custom.</div> : 
+                <div className="grid grid-cols-2 gap-2 text-xs"><button onClick={() => setPot1Data({...pot1Data, votedCreator:'pihak1'})} className="bg-gray-950 border border-gray-800 p-2.5 rounded-xl text-left"><p className="text-gray-500 text-[9px]">Pihak 1</p><p className="font-bold text-white truncate">{pot1Data.pihak1}</p></button><button onClick={() => setPot1Data({...pot1Data, votedCreator:'pihak2'})} className="bg-gray-950 border border-gray-800 p-2.5 rounded-xl text-left"><p className="text-gray-500 text-[9px]">Pihak 2</p><p className="font-bold text-white truncate">{pot1Data.pihak2}</p></button></div>
+              }
+            </div>
+            {pot1Data.votedCreator && (
+              <div className="bg-gray-800/60 border border-gray-800 rounded-2xl p-4 mb-4 space-y-2">
+                <h4 className="text-white text-xs font-bold flex items-center gap-1.5 text-amber-400"><Key size={14}/>Info ID & PW Room</h4>
+                {pot1Data.votedCreator === userCurrentPihak ? (
+                  <div className="space-y-2"><input type="text" placeholder="ID Room CS..." value={pot1Data.roomID} onChange={(e)=>setPot1Data({...pot1Data, roomID:e.target.value})} className="w-full bg-gray-950 border border-gray-800 rounded-xl p-2 text-xs text-white" /><input type="text" placeholder="Password Room..." value={pot1Data.roomPW} onChange={(e)=>setPot1Data({...pot1Data, roomPW:e.target.value})} className="w-full bg-gray-950 border border-gray-800 rounded-xl p-2 text-xs text-white" /></div>
+                ) : (
+                  <div className="bg-gray-950 p-2.5 rounded-xl text-xs space-y-1"><p className="flex justify-between"><span>ID:</span><span className="font-mono font-bold text-white">{pot1Data.roomID || 'Menunggu...'}</span></p><p className="flex justify-between"><span>PW:</span><span className="font-mono font-bold text-white">{pot1Data.roomPW || 'Menunggu...'}</span></p></div>
+                )}
               </div>
             )}
           </div>
+          <button onClick={() => setShowRules(true)} className="w-full bg-amber-500 hover:bg-amber-400 text-gray-950 font-bold py-3 rounded-xl text-sm transition-all flex items-center justify-center gap-2"><ScrollText size={16}/>Lihat Rules & Ambil Slot</button>
+        </div>
+      )}
 
-          {/* INPUT & SHARING ID/PW AKSES POT */}
-          {currentPotData.votedCreator && (
-            <div className="bg-[#0e1726]/60 border border-slate-800 rounded-2xl p-4 mb-4 space-y-3">
-              <h4 className="text-white text-xs font-bold flex items-center gap-2 text-amber-400">
-                <Key size={14} /> Kredensial Akses Custom Room
-              </h4>
-              {isUserTheCreator ? (
-                <div className="space-y-2">
-                  <input type="text" placeholder="Masukkan ID Room CS..." value={currentPotData.roomID} onChange={(e) => updatePotData({...currentPotData, roomID: e.target.value})} className="w-full bg-[#090d16] border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none" />
-                  <input type="text" placeholder="Masukkan Password Room..." value={currentPotData.roomPW} onChange={(e) => updatePotData({...currentPotData, roomPW: e.target.value})} className="w-full bg-[#090d16] border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none" />
-                </div>
-              ) : (
-                <div className="bg-[#090d16] border border-slate-800 p-3 rounded-xl space-y-2">
-                  <div className="flex justify-between items-center text-xs border-b border-slate-800/50 pb-1.5">
-                    <span className="text-slate-400">ID ROOM:</span>
-                    <span className="text-white font-mono font-bold">{currentPotData.roomID || 'Menunggu diinput...'}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-400">PASSWORD:</span>
-                    <span className="text-white font-mono font-bold">{currentPotData.roomPW || 'Menunggu diinput...'}</span>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Rincian Biaya */}
-          <div className="bg-[#0e1726]/30 border border-slate-800 rounded-2xl p-4 mb-4">
-            <div className="grid grid-cols-3 gap-2 text-center text-xs">
-              <div><p className="font-bold text-white">{selectedRoom?.price}</p><p className="text-[9px] text-slate-500">Taruhan</p></div>
-              <div className="border-x border-slate-800"><p className="font-bold text-white">{selectedRoom?.fee}</p><p className="text-[9px] text-slate-500">Fee Admin</p></div>
-              <div><p className="font-bold text-cyan-400">Rp {(selectedRoom?.priceNum + selectedRoom?.feeNum).toLocaleString('id-ID')}</p><p className="text-[9px] text-slate-500">Total</p></div>
-            </div>
+      {view === 'admin-dashboard' && (
+        <div className="w-full max-w-md bg-gray-950 border border-amber-500/20 rounded-3xl p-6 flex flex-col min-h-[720px] shadow-2xl">
+          <div className="flex items-center gap-2 mb-4"><button onClick={() => setView('user-dashboard')} className="bg-gray-800 p-2 rounded-xl text-white"><ChevronLeft size={14}/></button><div><h2 className="font-bold text-white text-base">Panel Produksi Utama</h2><p className="text-[10px] text-amber-500 font-mono">{user?.email}</p></div></div>
+          <form onSubmit={handleCreateRoom} className="bg-gray-900 border border-gray-800 rounded-2xl p-4 mb-4 space-y-2.5 text-xs">
+            <h3 className="text-amber-400 font-bold flex items-center gap-1.5"><Layers size={14}/>ATUR & BUAT ROOM BARU</h3>
+            <select value={newRoomType} onChange={(e)=>setNewRoomType(e.target.value)} className="w-full bg-gray-950 border border-gray-800 rounded-xl p-2 text-white"><option value="1v1">1v1</option><option value="2v2">2v2</option><option value="3v3">3v3</option><option value="4v4">4v4</option></select>
+            <select value={newRoomNominal} onChange={(e)=>setNewRoomNominal(e.target.value)} className="w-full bg-gray-950 border border-gray-800 rounded-xl p-2 text-white">{[1,2,3,4,5,6,7,8,9,10].map(n=><option key={n} value={n}>FT {n}K</option>)}</select>
+            <input type="text" value={newRoomAdmin} onChange={(e)=>setNewRoomAdmin(e.target.value)} className="w-full bg-gray-950 border border-gray-800 rounded-xl p-2 text-white" />
+            <button type="submit" className="w-full bg-amber-500 text-black font-bold py-2 rounded-xl text-xs">+ Rilis Room Baru</button>
+          </form>
+          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-4 mb-4 space-y-2 text-xs">
+            <h3 className="text-white font-bold flex items-center gap-1.5"><Plus size={14}/>TAMBAH OTORISASI EMAIL</h3>
+            <div className="flex gap-1.5"><input type="email" placeholder="Ketik email..." value={newAdminEmail} onChange={(e)=>setNewAdminEmail(e.target.value)} className="w-full bg-gray-950 border border-gray-800 rounded-xl p-2 text-white" /><button onClick={handleAddAdmin} className="bg-amber-500 text-black font-bold px-4 rounded-xl">Add</button></div>
           </div>
+          <div className="flex-grow text-xs"><h3 className="text-gray-400 font-bold mb-2 uppercase flex items-center gap-1.5"><Settings size={12}/>Manajemen List Room</h3><div className="space-y-2 max-h-[140px] overflow-y-auto no-scrollbar">{rooms.map(room=>(<div key={room.id} className="bg-gray-900 border border-gray-800 rounded-xl p-2.5 flex justify-between items-center"><div><p className="font-bold text-white text-xs">{room.title} <span className="text-[10px] text-cyan-400">({room.type})</span></p><p className="text-[10px] text-gray-500">PJ: Admin {room.admin}</p></div><button onClick={()=>handleDeleteRoom(room.id)} className="text-gray-500 hover:text-red-500 p-1"><Trash2 size={14}/></button></div>))}</div></div>
         </div>
-
-        <button 
-          onClick={() => setShowRules(true)}
-          className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl shadow-lg text-sm font-bold flex items-center justify-center gap-2"
-        >
-          <ScrollText size={16} /> Lihat Rules & Ambil Slot
-        </button>
-      </div>
-    );
-  };
-
-  // ==================== UI: ADMIN DASHBOARD ====================
-  const AdminDashboard = () => (
-    <div className="w-full max-w-md bg-[#020617] border border-amber-500/20 rounded-3xl p-6 flex flex-col min-h-[750px] shadow-2xl overflow-y-auto max-h-[800px] no-scrollbar">
-      <div className="flex items-center gap-3 mb-6">
-        <button onClick={() => setView('user-dashboard')} className="bg-slate-800 p-2 rounded-xl text-white"><ChevronLeft size={16} /></button>
-        <div>
-          <h2 className="font-bold text-white text-lg">Panel Produksi Utama</h2>
-          <p className="text-[10px] text-amber-500 font-mono">{user?.email}</p>
-        </div>
-      </div>
-
-      <form onSubmit={handleCreateRoom} className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 mb-6">
-        <h3 className="text-white text-xs font-bold mb-3 flex items-center gap-2 text-amber-400"><Layers size={14} /> ATUR & BUAT ROOM BARU</h3>
-        <div className="space-y-3">
-          <select value={newRoomType} onChange={(e) => setNewRoomType(e.target.value)} className="w-full bg-[#090d16] border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none">
-            <option value="1v1">1v1</option><option value="2v2">2v2</option><option value="3v3">3v3</option><option value="4v4">4v4</option>
-          </select>
-          <select value={newRoomNominal} onChange={(e) => setNewRoomNominal(e.target.value)} className="w-full bg-[#090d16] border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none">
-            {[1,2,3,4,5,6,7,8,9,10].map(n => <option key={n} value={n}>FT {n}K</option>)}
-          </select>
-          <input type="text" value={newRoomAdmin} onChange={(e) => setNewRoomAdmin(e.target.value)} className="w-full bg-[#090d16] border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none" />
-          <button type="submit" className="w-full bg-amber-500 text-black font-bold py-2 rounded-xl text-xs">+ Rilis Room Baru</button>
-        </div>
-      </form>
-
-      <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-4 mb-6">
-        <h3 className="text-white text-xs font-bold mb-3 flex items-center gap-2"><Plus size={14} className="text-amber-500" /> TAMBAH OTORISASI EMAIL</h3>
-        <div className="flex gap-2">
-          <input type="email" placeholder="Ketik email..." value={newAdminEmail} onChange={(e) => setNewAdminEmail(e.target.value)} className="w-full bg-[#090d16] border border-slate-800 rounded-xl py-2 px-3 text-xs text-white focus:outline-none" />
-          <button onClick={handleAddAdmin} className="bg-amber-500 text-black font-bold px-4 rounded-xl text-xs">Add</button>
-        </div>
-      </div>
-
-      <div className="flex-grow">
-        <h3 className="text-slate-400 text-[10px] font-bold mb-3 uppercase tracking-widest flex items-center gap-1.5"><Settings size={12}/> Manajemen List Room Aktif</h3>
-        <div className="space-y-2 max-h-[200px] overflow-y-auto pr-1 no-scrollbar">
-          {rooms.map((room) => (
-            <div key={room.id} className="bg-[#0e1726]/40 border border-slate-800 rounded-xl p-3 flex justify-between items-center">
-              <div>
-                <p className="text-xs text-white font-bold">{room.title} <span className="text-[10px] text-cyan-400">({room.type})</span></p>
-                <p className="text-[10px] text-slate-500">PJ: Admin {room.admin}</p>
-              </div>
-              <button onClick={() => handleDeleteRoom(room.id)} className="text-slate-500 hover:text-red-500 p-1"><Trash2 size={14} /></button>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-
-  return (
-    <div className="min-h-screen bg-[#030712] flex justify-center items-center p-4 relative">
-      {view === 'user-dashboard' && <UserDashboard />}
-      {view === 'room-detail' && <RoomDetail />}
-      {view === 'admin-dashboard' && <AdminDashboard />}
+      )}
 
       {/* ==================== MODAL OVERLAY: RULES UTAS UTUH ==================== */}
       {showRules && (
-        <div className="absolute inset-0 bg-black/80 backdrop-blur-md flex justify-center items-center z-50 p-4">
-          <div className="w-full max-w-md bg-[#090d16] border border-amber-500/30 rounded-3xl p-5 flex flex-col h-[680px] justify-between shadow-2xl">
-            
-            <div className="border-b border-slate-800 pb-2">
-              <h2 className="text-amber-500 font-black text-base flex items-center gap-2">
-                <ScrollText size={18} /> RULES FT CS FANEMA
-              </h2>
-              <p className="text-[10px] text-red-500 font-bold uppercase tracking-wider">BUDAYAKAN MEMBACA! GA BACA? DERITA MU</p>
-            </div>
-
-            {/* SELURUH TEXT DI BAWAH INI AKURAT SESUAI REQUEST USER TANPA DIUBAH ATAU DIHILANGKAN */}
-            <div className="flex-grow my-4 overflow-y-auto text-xs text-slate-300 space-y-4 pr-1 no-scrollbar leading-relaxed font-sans">
-              
+        <div className="absolute inset-0 bg-black/90 backdrop-blur-md flex justify-center items-center z-50 p-4">
+          <div className="w-full max-w-md bg-gray-900 border border-amber-500/30 rounded-3xl p-5 flex flex-col h-[660px] justify-between shadow-2xl">
+            <div className="border-b border-gray-800 pb-2"><h2 className="text-amber-500 font-black text-base flex items-center gap-1.5"><ScrollText size={18} /> RULES FT CS FANEMA</h2><p className="text-[10px] text-red-500 font-bold uppercase">BUDAYAKAN MEMBACA! GA BACA? DERITA MU</p></div>
+            <div className="flex-grow my-3 overflow-y-auto text-xs text-gray-300 space-y-3.5 pr-1 no-scrollbar leading-relaxed font-sans">
               <p className="font-bold text-emerald-400 text-sm">PC/MOBI/MACRO✅</p>
-
-              <div>
-                <p className="font-bold text-white uppercase">RULES FAST TOUR (TIDAK SS 00)</p>
-                <p className="text-amber-400 font-bold">LEVEL DIBAWAH 25 SS 00!! BERDIRI+JONGKOK HADAP BASE MUSUH</p>
+              <div><p className="font-bold text-white uppercase">RULES FAST TOUR (TIDAK SS 00)</p><p className="text-amber-400 font-bold">LEVEL DIBAWAH 25 SS 00!! BERDIRI+JONGKOK HADAP BASE MUSUH</p></div>
+              <div><p className="text-white font-bold">😈SG BEBAS/ALLSKIN BOLEH</p><p className="font-bold text-cyan-400">SKILL CHARACTER<br />[ALOK, KELLY, CAROLINE, HAYATO]</p><p className="text-[11px] text-gray-500 italic">NOTE: SELAIN SKIL DIATAS/TIDAK ADA DI KOSONGIN/JNGN GUNAKAN YG LAIN</p></div>
+              <div className="bg-gray-950 p-3 rounded-xl space-y-1 font-mono text-[11px] border border-gray-800">
+                <p className="text-amber-500 font-bold">*BACAA!!*</p><p className="font-bold text-white">*ROOM MODE CRAZY STORE 1500 COIN*</p>
+                <p>🔰MODE CRAZY STORE | 🔰RONDE: 13 | 🔰DEFAULT COIN: 1500</p><p>🔰BATAS AMMO: TIDAK/NO | 🔰BATAS THROWABLE: TIDAK/NO</p>
+                <p className="text-red-400">❌AIRDROP: TIDAK/NO | ❌LOADOUT: TIDAK/NO</p><p className="text-gray-500">❌SISANYA BIARIN JANGAN DI APA APAIN</p>
               </div>
-
-              <div>
-                <p className="text-white font-bold">😈SG BEBAS/ALLSKIN BOLEH</p>
-                <p className="font-bold text-cyan-400">SKILL CHARACTER<br />[ALOK, KELLY, CAROLINE, HAYATO]</p>
-                <p className="text-[11px] text-slate-500 italic">NOTE: SELAIN SKIL DIATAS/TIDAK ADA DI KOSONGIN/JNGN GUNAKAN YG LAIN</p>
+              <p className="text-emerald-400 font-medium">✅22/33/44 BOLEH END ANIMASI</p>
+              <div><p className="font-bold text-white">*PET YANG BOLEH DI PAKE*</p><p>🔰FALCO, PANTHER, SHIBA</p><p className="text-red-400 font-bold">*SELAIN ITU DISS NO DRAMA*</p></div>
+              <div className="space-y-0.5"><p className="font-bold text-white">*SENJATA SG 2 ONLY*</p><p className="text-red-400">❌DMGE TINJU DIS | ❌DMGE PISTOL/USP DIS, <span className="text-emerald-400">✅(JIKA AFK TIDAK DIS)</span></p></div>
+              <div className="space-y-0.5 text-gray-300">
+                <p>• 11/22 NO ELIM ZONA | • 33/44 BOLEH ELIM ZONA</p><p>• NO GLOWALL/HELM/VEST KALO 00 | • NO ALIANSI | • NO CHARACTER CEWE</p>
+                <p>• NO BANDEL BALAP | • NO BANDEL BENCONG | • NO BANDEL TUNG TUNG</p><p className="text-red-400">• NO API UNGGUN, BAWA? DIS</p><p>• NO LOADOUT (KOSONGIN) | • NO LANTAI 2 / ATAP (KECUALI UDAH WIN)</p>
+                <p>• NO KOLONG CT | • NO SEPATU TERBANG</p><p className="text-red-400 font-bold">• SURCIN? DISS NO DRAMA</p><p>• HS BRUTAL? MINIM 8HS NO SC? GA DIS</p><p className="text-red-400">• RASIO HS 70% DIS</p><p className="text-amber-500 font-bold">• *BATAS RM 3x, LEBIH? DISS*</p>
               </div>
-
-              <div className="bg-slate-900/80 border border-slate-800 p-3 rounded-xl space-y-1 font-mono text-[11px]">
-                <p className="text-amber-500 font-bold">*BACAA!!*</p>
-                <p className="font-bold text-white">*ROOM MODE CRAZY STORE 1500 COIN*</p>
-                <p>🔰MODE CRAZY STORE</p>
-                <p>🔰RONDE: 13</p>
-                <p>🔰DEFAULT COIN: 1500</p>
-                <p>🔰BATAS AMMO: TIDAK/NO</p>
-                <p>🔰BATAS THROWABLE: TIDAK/NO</p>
-                <p className="text-red-400">❌AIRDROP: TIDAK/NO</p>
-                <p className="text-red-400">❌LOADOUT: TIDAK/NO</p>
-                <p className="text-slate-500">❌SISANYA BIARIN JANGAN DI APA APAIN</p>
-              </div>
-
-              <div>
-                <p className="text-emerald-400 font-medium">✅22/33/44 BOLEH END ANIMASI</p>
-              </div>
-
-              <div>
-                <p className="font-bold text-white">*PET YANG BOLEH DI PAKE*</p>
-                <p>🔰FALCO, PANTHER, SHIBA</p>
-                <p className="text-red-400 font-bold">*SELAIN ITU DISS NO DRAMA*</p>
-              </div>
-
-              <div className="space-y-1">
-                <p className="font-bold text-white">*SENJATA SG 2 ONLY*</p>
-                <p className="text-red-400">❌DMGE TINJU DIS</p>
-                <p className="text-red-400">❌DMGE PISTOL/USP DIS,</p>
-                <p className="text-emerald-400">✅(JIKA AFK TIDAK DIS)</p>
-              </div>
-
-              <div className="space-y-0.5 text-slate-300 font-medium">
-                <p>• 11/22 NO ELIM ZONA</p>
-                <p>• 33/44 BOLEH ELIM ZONA</p>
-                <p>• NO GLOWALL/HELM/VEST KALO 00</p>
-                <p>• NO ALIANSI</p>
-                <p>• NO CHARACTER CEWE</p>
-                <p>• NO BANDEL BALAP</p>
-                <p>• NO BANDEL BENCONG</p>
-                <p>• NO BANDEL TUNG TUNG</p>
-                <p className="text-red-400">• NO API UNGGUN, BAWA? DIS</p>
-                <p>• NO LOADOUT (KOSONGIN)</p>
-                <p>• NO LANTAI 2 / ATAP (KECUALI UDAH WIN)</p>
-                <p>• NO KOLONG CT</p>
-                <p>• NO SEPATU TERBANG</p>
-                <p className="text-red-400 font-bold">• SURCIN? DISS NO DRAMA</p>
-                <p>• HS BRUTAL? MINIM 8HS NO SC? GA DIS</p>
-                <p className="text-red-400">• RASIO HS 70% DIS</p>
-                <p className="text-amber-500 font-bold">• *BATAS RM 3x, LEBIH? DISS*</p>
-              </div>
-
-              <div className="bg-amber-500/5 border border-amber-500/20 p-3 rounded-xl space-y-2 text-[11px]">
-                <p className="text-slate-300 font-semibold">SEBELUM MULAI/GAS CEK SPECTATOR BIAR GA DRAMA ADA SPECK</p>
+              <div className="bg-amber-500/5 border border-amber-500/10 p-3 rounded-xl space-y-1.5 text-[11px]">
+                <p className="text-gray-300 font-semibold">SEBELUM MULAI/GAS CEK SPECTATOR BIAR GA DRAMA ADA SPECK</p>
                 <p>❗BATAS DIS 10 MENIT TOLERAN (IBADAH) 15 MENIT LEBIH? DISKUALIFIKASI</p>
                 <p>❗JIKA ADA KESALAHAN DALAM MEMBUAT ROOM BISA REMATCH DENGAN SYARAT BELUM DAMAGE, UDAH DAMAGE? DIS</p>
                 <p>❗KIRIM BUKTI SS+REC JIKA ADA YANG MELANGGAR RULES/GADA BUKTI SKIP/KICK AJA</p>
                 <p>❗GA MAU OPR SELAMA 10 MENIT, DIS DUA' TIM</p>
                 <p>❗DUA TIM UDAH MASUK ROOM BELUM GAS SELAMA 10 MENIT,DIS YANG BUAT ROOM</p>
               </div>
-
             </div>
-
-            <div className="flex gap-2.5 border-t border-slate-800 pt-3">
-              <button onClick={() => setShowRules(false)} className="w-1/3 bg-slate-800 text-slate-300 py-2.5 rounded-xl text-xs font-bold">Kembali</button>
-              <button onClick={confirmWhatsAppPayment} className="w-2/3 bg-emerald-500 text-slate-950 font-black py-2.5 rounded-xl text-xs">Saya Paham & Setuju</button>
+            <div className="flex gap-2 border-t border-gray-800 pt-3">
+              <button onClick={() => setShowRules(false)} className="w-1/3 bg-gray-800 text-gray-300 py-2 rounded-xl text-xs font-bold">Kembali</button>
+              <button onClick={confirmWhatsAppPayment} className="w-2/3 bg-emerald-500 text-gray-950 font-black py-2 rounded-xl text-xs">Saya Paham & Setuju</button>
             </div>
-
           </div>
         </div>
       )}

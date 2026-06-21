@@ -19,7 +19,7 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        // Komponen Wrapper Ikon Lucide agar lancar di browser
+        // Komponen Wrapper Ikon Lucide agar lancar di browser via CDN
         const Icon = ({ name, size = 16, className = "" }) => {
             React.useEffect(() => {
                 if (window.lucide) {
@@ -267,7 +267,8 @@
             );
         }
 
-        const root = tragedies = window.ReactDOM.createRoot(document.getElementById('root'));
+        // PERBAIKAN: Render DOM murni React 18 tanpa typo variable
+        const root = window.ReactDOM.createRoot(document.getElementById('root'));
         root.render(<FTArenaApp />);
     </script>
 </body>
